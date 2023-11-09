@@ -1,0 +1,9 @@
+header {
+    background-color: goldenrod;
+
+}
+img {
+    max-width: 10%;
+    background-color: goldenrod;
+    float: left;
+}
