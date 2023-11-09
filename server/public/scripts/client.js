@@ -24,13 +24,20 @@ function renderKoalas(koalasArray) {
   // Add all songs to table
   console.log(koalasArray);
   for (let koala of koalasArray) {
+    let buttonVisible = '';
+    if (koala.ready_to_transfer === false) {
+      buttonVisible = `<button onclick="preparedToTransfer(event)">Ready to Transfer</button>`
+    }
     koalaTableBody.innerHTML += (`
-      <tr>
+      <tr data-koalaId='${koala.id}'>
         <td>${koala.name}</td>
         <td>${koala.age}</td>
         <td>${koala.gender}</td>
-        <td>${koala.ready_for_transfer}</td>
+        <td>${koala.ready_to_transfer}</td>
         <td>${koala.notes}</td>
+        <td>
+        ${buttonVisible}
+        </td>
       </tr>`
     );
   }
@@ -40,17 +47,12 @@ function renderKoalas(koalasArray) {
 function addKoala(event) {
   event.preventDefault();
   // Get info to send to the server
-  koalaname = document.getElementById('nameIn').value; 
-  koalaage = document.getElementById('ageIn').value;
-  koalagender= document.getElementById('genderIn').value;
-  koalaready_for_transfer = document.getElementById('readyForTransferIn').value;
-  koalanotes = document.getElementById('notesIn').value;
-  const newKoala = {
-    name: koalaname, 
-    age: koalaage, 
-    gender: koalagender,
-    ready_for_transfer: koalaready_for_transfer,
-    notes: koalanotes}
+  const newKoala = {};
+  newKoala.name = document.getElementById('nameIn').value; 
+  newKoala.age = document.getElementById('ageIn').value;
+  newKoala.gender= document.getElementById('genderIn').value;
+  newKoala.ready_to_transfer = document.getElementById('readyForTransferIn').value;
+  newKoala.notes = document.getElementById('notesIn').value;
 
   console.log('Adding koala', newKoala);
 
@@ -66,5 +68,22 @@ function addKoala(event) {
     console.log('error in Koala post', error); 
     alert('Error adding koala. Please try again later.')       
   });
+}
+
+function preparedToTransfer(event){
+  event.preventDefault();
+  let clickedButton = event.target;
+  let theTableRow = clickedButton.closest('tr');
+  let koalaId = theTableRow.getAttribute('data-koalaid');
+  console.log("this is the koala id:", koalaId);
+  axios({
+    method: 'PUT',
+    url: `/koalas/${koalaId}`,
+    data: {ready_to_transfer: true}
+  }). then((response) => {
+    getKoalas();
+  }).catch((error) => {
+    console.log("PUT /koalas/:id fail:", error);
+  })
 }
 getKoalas();

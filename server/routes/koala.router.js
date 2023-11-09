@@ -26,25 +26,23 @@ koalaRouter.get('/', (req, res) => {
   });
 
 // POST
-koalaRouter.post('/koalas', (req, res) => {
+koalaRouter.post('/', (req, res) => {
   console.log('POST /koalas got a request, here is req.body:')
   console.log(req.body)
-  const sqlQueryText = `
+  let sqlQueryText = `
   INSERT INTO "koalas"
-  ("name", "age", "gender", "ready_for_transfer", "notes")
+  ("name", "age", "gender", "ready_to_transfer", "notes")
   VALUES
     ($1, $2, $3, $4, $5);
   `
-  const sqlValues = [
+  pool
+  .query(sqlQueryText,[
     req.body.name,
     req.body.age,
     req.body.gender,
     req.body.ready_to_transfer,
     req.body.note,
-
-
-  ]
-  pool.query(sqlQueryText, sqlValues)
+  ])
     .then((dbResult) => {
       res.sendStatus(201)
     })
@@ -54,6 +52,24 @@ koalaRouter.post('/koalas', (req, res) => {
     })})
 
 // PUT
+koalaRouter.put('/:id', (req,res) => {
+  let idOfKoala = req.params.id;
+  const sqlText = `
+      UPDATE "koalas"
+	      SET "ready_to_transfer" = True
+	      WHERE "id" = $1;`
+    
+  const sqlValues = [idOfKoala]
+          pool.query(sqlText, sqlValues)
+            .then((dbResult) => {
+              res.sendStatus(200)
+            })
+            .catch((dbError) => {
+              console.log('PUT /books/:id failed:', dbError);
+              res.sendStatus(500);
+            })
+        }
+)
 
 
 // DELETE
